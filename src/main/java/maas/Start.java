@@ -7,7 +7,7 @@ import maas.tutorials.BookSellerAgent;
 
 public class Start {
     public static void main(String[] args) {
-        int nBookBuyers = 20;
+        int nBookBuyers = 1;
         int nBookSellers = 3;
 
     	List<String> agents = new Vector<>();
