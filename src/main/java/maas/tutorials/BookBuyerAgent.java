@@ -4,18 +4,49 @@ import jade.content.lang.Codec;
 import jade.content.lang.sl.SLCodec;
 import jade.content.onto.basic.Action;
 import jade.core.Agent;
+import jade.core.AID;
 import jade.core.behaviours.*;
 import jade.domain.FIPANames;
 import jade.domain.JADEAgentManagement.JADEManagementOntology;
 import jade.domain.JADEAgentManagement.ShutdownPlatform;
 import jade.lang.acl.ACLMessage;
+import java.util.List;
 
 
 @SuppressWarnings("serial")
 public class BookBuyerAgent extends Agent {
+	// Books to buy
+	private List<String> targetBooks;
+	// Books bought
+	private List<String> acquiredBooks;
+
 	protected void setup() {
-	// Printout a welcome message
-		System.out.println("Hello! Buyer-agent "+getAID().getName()+" is ready.");
+		// Welcome message
+		System.out.println("Buyer-agent "+getAID().getName()+" is ready.");
+
+		//initializeTargetBooks();
+		//initializeAcquiredBooks();
+
+		// Title of the book to buy
+		//targetBookTitle = "Guliver's travels";
+
+		// if(targetBookTitle != null){
+		// 	System.out.println("Trying to buy "+targetBookTitle);
+		// 	// TickerBehaviour that schedules a request to the seller agent every minute
+		// 	addBehaviour(new TickerBehaviour (this, 60000) {
+		// 		protected void onTick(){
+		// 			myAgent.addBehaviour(new RequestPerformer());
+		// 		}
+		// 	});
+		// }
+		// else {
+		// 	// Make the agent terminate
+		// 	System.out.println("No target book title specified");
+		// 	addBehaviour(new shutdown());
+		//
+		// }
+
+
 
         try {
  			Thread.sleep(3000);
@@ -25,6 +56,7 @@ public class BookBuyerAgent extends Agent {
 		addBehaviour(new shutdown());
 
 	}
+
 	protected void takeDown() {
 		System.out.println(getAID().getLocalName() + ": Terminating.");
 	}
