@@ -11,6 +11,7 @@ import jade.domain.JADEAgentManagement.JADEManagementOntology;
 import jade.domain.JADEAgentManagement.ShutdownPlatform;
 import jade.lang.acl.ACLMessage;
 import java.util.List;
+import java.util.Vector;
 
 
 @SuppressWarnings("serial")
@@ -24,8 +25,8 @@ public class BookBuyerAgent extends Agent {
 		// Welcome message
 		System.out.println("Buyer-agent "+getAID().getName()+" is ready.");
 
-		//initializeTargetBooks();
-		//initializeAcquiredBooks();
+		initializeTargetBooks();
+		acquiredBooks = new Vector<>();
 
 		// Title of the book to buy
 		//targetBookTitle = "Guliver's travels";
@@ -54,7 +55,12 @@ public class BookBuyerAgent extends Agent {
  			//e.printStackTrace();
  		}
 		addBehaviour(new shutdown());
-
+	}
+	protected void initializeTargetBooks(){
+		targetBooks = new Vector<>();
+		targetBooks.add("Frankenstein");
+		targetBooks.add("Dracula");
+        targetBooks.add("Guilver's travels");
 	}
 
 	protected void takeDown() {

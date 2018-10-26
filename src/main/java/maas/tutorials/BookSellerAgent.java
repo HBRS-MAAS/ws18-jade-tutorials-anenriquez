@@ -57,10 +57,10 @@ public class BookSellerAgent extends Agent {
         catalogue_paperbacks.put("A Storm of Swords", 8.6);
         catalogue_paperbacks.put("A Feast of Crows", 8.6);
 
-        inventory_paperbacks.put("A Game of Thrones", 10);
+        inventory_paperbacks.put("A Game of Thrones", 20);
         inventory_paperbacks.put("A Clash of Kings", 20);
-        inventory_paperbacks.put("A Storm of Swords", 15);
-        inventory_paperbacks.put("A Feast of Crows", 3);
+        inventory_paperbacks.put("A Storm of Swords", 20);
+        inventory_paperbacks.put("A Feast of Crows", 20);
 
     }
 
