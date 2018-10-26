@@ -20,17 +20,31 @@ import java.util.*;
 public class BookSellerAgent extends Agent {
     // The catalogue of ebooks for sale (maps the title of a book to its price)
     private Hashtable catalogueEbooks;
+    // Number of ebook titles
+    private int nEBooks = 2;
     // The catalogue of paperback for sale (maps the title of a book to its price)
     private Hashtable cataloguePaperbacks;
+    // Number of paperback titles
+    private int nPaperbacks = 2;
     // The inventory of papaerbacks (maps the title of a paperback to its availability)
     private Hashtable inventoryPaperbacks;
+    // Total number of paperbacks
+    private int sizeInventory = 20;
 
     // Agent initialization
     protected void setup() {
 
-		System.out.println("Seller-agent "+getAID().getName()+" is ready.");
+		System.out.println(getAID().getName()+" is ready.");
 
         initializeCatalogue();
+
+        System.out.println(getAID().getName()+" has "+catalogueEbooks.size()+" ebook titles");
+        System.out.println(getAID().getName()+" has "+cataloguePaperbacks.size()+" paperback titles");
+
+        System.out.println(getAID().getName()+ " Ebooks (title, price): " + catalogueEbooks);
+        System.out.println(getAID().getName()+ " Paperbacks(title, price): " + cataloguePaperbacks);
+        System.out.println(getAID().getName() + " Inventory Paperbacks(title,quantity): " + inventoryPaperbacks);
+
 
         // Register the book-selling service in the yellow pages
 		DFAgentDescription dfd = new DFAgentDescription();
@@ -72,29 +86,44 @@ public class BookSellerAgent extends Agent {
 	}
 
     protected void initializeCatalogue(){
-        // Create the catalogue_ebooks
+        List<String> catalogueBooks = new Vector<>();
+        Random rand = new Random();
+
+		catalogueBooks.add("Frankenstein");
+        catalogueBooks.add("Dracula");
+        catalogueBooks.add("Guilver's Travels");
+        catalogueBooks.add("Robinson Crusoe");
+        // catalogueBooks.add("A Game of Thrones");
+        // catalogueBooks.add("A Clash of Kings");
+        // catalogueBooks.add("A Storm of Swords");
+        // catalogueBooks.add("A Feast of Crows");
+
+        // Create the catalogue of books
         catalogueEbooks = new Hashtable();
-        // Create the catalogue_paperbacks
+        // Create the catalogue of paperbacks
         cataloguePaperbacks = new Hashtable();
-        // Create the inventory of papaerbacks
+        // Create the inventory of paperbacks
         inventoryPaperbacks = new Hashtable();
 
-        catalogueEbooks.put("Frankenstein", 3);
-        catalogueEbooks.put("Dracula", 4);
-        catalogueEbooks.put("Guilver's Travels", 3);
-        catalogueEbooks.put("Robinson Crusoe", 4);
-
-        cataloguePaperbacks.put("A Game of Thrones", 8);
-        cataloguePaperbacks.put("A Clash of Kings", 8);
-        cataloguePaperbacks.put("A Storm of Swords", 8);
-        cataloguePaperbacks.put("A Feast of Crows", 8);
-
-        inventoryPaperbacks.put("A Game of Thrones", 20);
-        inventoryPaperbacks.put("A Clash of Kings", 20);
-        inventoryPaperbacks.put("A Storm of Swords", 20);
-        inventoryPaperbacks.put("A Feast of Crows", 20);
-
+		// Get a random index of the catalogueBooks and fill int the catalogue of ebooks.
+        // The price is a random number between 1 and 20
+		//for (int i=0; i<nEBooks; i++){
+        while(catalogueEbooks.size()< nEBooks){
+            int price = rand.nextInt(20) +1;
+			int randomIndex = rand.nextInt(catalogueBooks.size());
+			catalogueEbooks.put(catalogueBooks.get(randomIndex),price);
+		}
+        //for (int i=0; i<nPaperbacks; i++){
+        while(cataloguePaperbacks.size()< nPaperbacks){
+            Integer copies = (Integer) sizeInventory/nPaperbacks;
+            int price = rand.nextInt(20) +1;
+			int randomIndex = rand.nextInt(catalogueBooks.size());
+			cataloguePaperbacks.put(catalogueBooks.get(randomIndex),price);
+            inventoryPaperbacks.put(catalogueBooks.get(randomIndex), copies);
+		}
     }
+
+
     /**
 	   Inner class OfferRequestsServer.
 	   This is the behaviour used by Book-seller agents to serve incoming requests

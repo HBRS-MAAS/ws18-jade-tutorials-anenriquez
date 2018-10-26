@@ -17,34 +17,35 @@ import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 import java.util.List;
 import java.util.Vector;
+import java.util.Random;
 
 
 @SuppressWarnings("serial")
 public class BookBuyerAgent extends Agent {
+	// catalogue of books from which the Buyer selects targetBooks
+	private List<String> catalogueBooks;
 	// Books to buy
 	private List<String> targetBooks;
+	private int nTargetBoks = 3;
 	// Books bought
 	private List<String> acquiredBooks;
 	// The list of known seller agents
+
 	private AID [] sellerAgents;
 
 	protected void setup() {
 		// Welcome message
-		System.out.println("Buyer-agent "+getAID().getName()+" is ready.");
-
+		System.out.println(getAID().getName()+" is ready.");
+		initializeCatalogueBooks();
 		initializeTargetBooks();
 		acquiredBooks = new Vector<>();
+		System.out.println(getAID().getName()+ " will try to buy  "+targetBooks);
 
+		// Add a TickerBehaviour that schedules a request to seller agents every 5000 ms
 		for (String targetBook : targetBooks) {
-			//System.out.println("Target book is "+targetBook);
-			// Add a TickerBehaviour that schedules a request to seller agents every minute
 			addBehaviour(new TickerBehaviour(this, 5000) {
 				protected void onTick() {
-					// if (acquiredBooks.size() > 3) {
-					// 	System.out.println("Agent "+getAID().getName()+" has bought "+acquiredBooks.size()+ " books");
-					// 	addBehaviour(new shutdown());
-					// }
-					System.out.println("Agent "+getAID().getName()+"is trying to buy "+targetBook);
+					System.out.println(getAID().getName()+"is trying to buy "+targetBook);
 					// Update the list of seller agents
 					DFAgentDescription template = new DFAgentDescription();
 					ServiceDescription sd = new ServiceDescription();
@@ -62,29 +63,48 @@ public class BookBuyerAgent extends Agent {
 					catch (FIPAException fe) {
 						fe.printStackTrace();
 					}
-					if (acquiredBooks.size() < 3){
+					if (acquiredBooks.size() < nTargetBoks){
 						// Perform the request
 						myAgent.addBehaviour(new RequestPerformer(targetBook));
-					} else{
-						System.out.println("Agent "+getAID().getName()+" has bought "+acquiredBooks.size()+ " books");
+					}
+					else{
+						System.out.println(getAID().getName()+" has bought "+acquiredBooks.size()+ " books");
 						addBehaviour(new shutdown());
+						//break;
 					}
 				}
+
 			} );
-    	}
+		}
 
         try {
  			Thread.sleep(3000);
  		} catch (InterruptedException e) {
  			//e.printStackTrace();
  		}
+		//addBehaviour(new shutdown());
+	}
+	public void initializeCatalogueBooks(){
+		catalogueBooks = new Vector<>();
+		catalogueBooks.add("Frankenstein");
+		catalogueBooks.add("Dracula");
+		catalogueBooks.add("Guilver's Travels");
+		catalogueBooks.add("Robinson Crusoe");
+	// 	catalogueBooks.add("A Game of Thrones");
+	// 	catalogueBooks.add("A Clash of Kings");
+	// 	catalogueBooks.add("A Storm of Swords");
+	// 	catalogueBooks.add("A Feast of Crows");
 	}
 
 	protected void initializeTargetBooks(){
 		targetBooks = new Vector<>();
-		targetBooks.add("Frankenstein");
-		targetBooks.add("Dracula");
-        targetBooks.add("A Feast of Crows");
+		Random rand = new Random();
+		// Get a random index of the catalogueBooks until the target books has nTargetBoks
+		for (int i=0; i<nTargetBoks; i++){
+			int randomIndex = rand.nextInt(catalogueBooks.size());
+			targetBooks.add(catalogueBooks.get(randomIndex));
+		}
+
 	}
 
 	/**
