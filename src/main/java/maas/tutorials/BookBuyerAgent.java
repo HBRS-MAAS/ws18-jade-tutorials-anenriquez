@@ -26,12 +26,13 @@ public class BookBuyerAgent extends Agent {
 	private List<String> catalogueBooks;
 	// Books to buy
 	private List<String> targetBooks;
-	private int nTargetBoks = 3;
+	private int nTargetBooks = 3;
 	// Books bought
 	private List<String> acquiredBooks;
 	// The list of known seller agents
-
 	private AID [] sellerAgents;
+
+	private int agentID;
 
 	protected void setup() {
 		// Welcome message
@@ -41,7 +42,11 @@ public class BookBuyerAgent extends Agent {
 		acquiredBooks = new Vector<>();
 		System.out.println(getAID().getName()+ " will try to buy  "+targetBooks);
 
-		// Add a TickerBehaviour that schedules a request to seller agents every 5000 ms
+		String [] parts = getAID().getLocalName().split("_");
+        agentID = Integer.parseInt(parts[1]);
+        System.out.println("Agent ID: "+ agentID);
+
+		// Add a TickerBehaviour for each targetBook
 		for (String targetBook : targetBooks) {
 			addBehaviour(new TickerBehaviour(this, 5000) {
 				protected void onTick() {
@@ -63,14 +68,16 @@ public class BookBuyerAgent extends Agent {
 					catch (FIPAException fe) {
 						fe.printStackTrace();
 					}
-					if (acquiredBooks.size() < nTargetBoks){
-						// Perform the request
-						myAgent.addBehaviour(new RequestPerformer(targetBook));
+
+					if(acquiredBooks.contains(targetBook)){
+						System.out.println(getAID().getLocalName()+" has bought already bought" + targetBook);
+						printAcquiredBooks();
+						stop();
 					}
 					else{
-						System.out.println(getAID().getName()+" has bought "+acquiredBooks.size()+ " books");
-						addBehaviour(new shutdown());
-						//break;
+						// Perform the request
+						myAgent.addBehaviour(new RequestPerformer(targetBook));
+
 					}
 				}
 
@@ -82,27 +89,32 @@ public class BookBuyerAgent extends Agent {
  		} catch (InterruptedException e) {
  			//e.printStackTrace();
  		}
+
 		//addBehaviour(new shutdown());
 	}
+
+	public void printAcquiredBooks(){
+		System.out.println("Agent"+ getAID().getName()+" bought:");
+		System.out.println(acquiredBooks);
+	}
+
 	public void initializeCatalogueBooks(){
 		catalogueBooks = new Vector<>();
 		catalogueBooks.add("Frankenstein");
 		catalogueBooks.add("Dracula");
-		catalogueBooks.add("Guilver's Travels");
-		catalogueBooks.add("Robinson Crusoe");
-	// 	catalogueBooks.add("A Game of Thrones");
-	// 	catalogueBooks.add("A Clash of Kings");
-	// 	catalogueBooks.add("A Storm of Swords");
-	// 	catalogueBooks.add("A Feast of Crows");
+		catalogueBooks.add("A Storm of Swords");
+		catalogueBooks.add("A Feast of Crows");
 	}
 
 	protected void initializeTargetBooks(){
 		targetBooks = new Vector<>();
 		Random rand = new Random();
-		// Get a random index of the catalogueBooks until the target books has nTargetBoks
-		for (int i=0; i<nTargetBoks; i++){
+		// Get a random index of the catalogueBooks until the target books has nTargetBooks
+		while(targetBooks.size()< nTargetBooks){
 			int randomIndex = rand.nextInt(catalogueBooks.size());
-			targetBooks.add(catalogueBooks.get(randomIndex));
+			boolean titleInTargetBooks = targetBooks.contains(catalogueBooks.get(randomIndex));
+			if (!titleInTargetBooks)
+				targetBooks.add(catalogueBooks.get(randomIndex));
 		}
 
 	}
@@ -188,6 +200,7 @@ public class BookBuyerAgent extends Agent {
 						System.out.println("Agent "+getAID().getName()+ " successfully purchased "+ targetBook+ " from agent "+reply.getSender().getName());
 						System.out.println("Bought at price = "+bestPrice);
 						acquiredBooks.add(targetBook);
+						//myAgent.doDelete();
 					}
 					else {
 						System.out.println("Attempt failed: requested book already sold.");
