@@ -28,8 +28,6 @@ public class Start {
             agents.add(sb.toString());
         }
 
-    	//agents.add("tester:maas.tutorials.BookBuyerAgent");
-
     	List<String> cmd = new Vector<>();
     	cmd.add("-agents");
     	StringBuilder sb = new StringBuilder();
