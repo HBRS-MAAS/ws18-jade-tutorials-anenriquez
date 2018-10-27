@@ -71,7 +71,6 @@ public class BookSellerAgent extends Agent {
  		} catch (InterruptedException e) {
  			//e.printStackTrace();
  		}
-		//addBehaviour(new shutdown());
     }
 
     protected void takeDown() {
@@ -86,17 +85,14 @@ public class BookSellerAgent extends Agent {
 	}
 
     protected void initializeCatalogue(){
-        List<String> catalogueBooks = new Vector<>();
+        List<String> eBooks = new Vector<>();
+        List<String> pBooks = new Vector<>();
         Random rand = new Random();
 
-		catalogueBooks.add("Frankenstein");
-        catalogueBooks.add("Dracula");
-        catalogueBooks.add("Guilver's Travels");
-        catalogueBooks.add("Robinson Crusoe");
-        // catalogueBooks.add("A Game of Thrones");
-        // catalogueBooks.add("A Clash of Kings");
-        // catalogueBooks.add("A Storm of Swords");
-        // catalogueBooks.add("A Feast of Crows");
+		eBooks.add("Frankenstein");
+        eBooks.add("Dracula");
+        pBooks.add("A Storm of Swords");
+        pBooks.add("A Feast of Crows");
 
         // Create the catalogue of books
         catalogueEbooks = new Hashtable();
@@ -105,21 +101,19 @@ public class BookSellerAgent extends Agent {
         // Create the inventory of paperbacks
         inventoryPaperbacks = new Hashtable();
 
-		// Get a random index of the catalogueBooks and fill int the catalogue of ebooks.
+		// Fill in the catalogue of ebooks.
         // The price is a random number between 1 and 20
-		//for (int i=0; i<nEBooks; i++){
-        while(catalogueEbooks.size()< nEBooks){
+        for (int i=0; i<nEBooks; i++){
             int price = rand.nextInt(20) +1;
-			int randomIndex = rand.nextInt(catalogueBooks.size());
-			catalogueEbooks.put(catalogueBooks.get(randomIndex),price);
+			catalogueEbooks.put(eBooks.get(i),price);
 		}
-        //for (int i=0; i<nPaperbacks; i++){
-        while(cataloguePaperbacks.size()< nPaperbacks){
+        // Fill in the catalogue of papaerbacks
+        // The price is a random number between 1 and 20
+        for (int i=0; i<nPaperbacks; i++){
             Integer copies = (Integer) sizeInventory/nPaperbacks;
             int price = rand.nextInt(20) +1;
-			int randomIndex = rand.nextInt(catalogueBooks.size());
-			cataloguePaperbacks.put(catalogueBooks.get(randomIndex),price);
-            inventoryPaperbacks.put(catalogueBooks.get(randomIndex), copies);
+			cataloguePaperbacks.put(pBooks.get(i),price);
+            inventoryPaperbacks.put(pBooks.get(i), copies);
 		}
     }
 
