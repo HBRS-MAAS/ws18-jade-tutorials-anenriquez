@@ -1,3 +1,5 @@
+//Code based on the examples.bookTrading package in http://jade.tilab.com/download/jade/
+
 package maas.tutorials;
 
 import jade.content.lang.Codec;
@@ -265,10 +267,6 @@ public class BookBuyerAgent extends Agent {
 			if (step == 2 && bestSeller == null) {
 				System.out.println("Attempt failed: "+targetBook+" not available for sale");
 			}
-            // if (step == 4 && acquiredBooks.size()>nTargetBooks){
-            //     myAgent.doDelete();
-            //     return false;
-            // }
 			return ((step == 2 && bestSeller == null) || step == 4);
 		}
 	}  // End of inner class RequestPerformer
