@@ -30,11 +30,13 @@ public class BookSellerAgent extends Agent {
     private Hashtable inventoryPaperbacks;
     // Total number of paperbacks
     private int sizeInventory = 20;
+    // The list of known buyer agents
+    private AID [] buyerAgents;
 
     // Agent initialization
     protected void setup() {
 
-		System.out.println(getAID().getName()+" is ready.");
+		System.out.println(getAID().getLocalName()+" is ready.");
 
         initializeCatalogue();
 
@@ -45,7 +47,34 @@ public class BookSellerAgent extends Agent {
         System.out.println(getAID().getName()+ " Paperbacks(title, price): " + cataloguePaperbacks);
         System.out.println(getAID().getName() + " Inventory Paperbacks(title,quantity): " + inventoryPaperbacks);
 
+        registerBookSeller();
 
+        // Add the behaviour serving queries from buyer agents
+		addBehaviour(new OfferRequestsServer());
+
+		// Add the behaviour serving purchase orders from buyer agents
+		addBehaviour(new PurchaseOrdersServer());
+
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            //e.printStackTrace();
+        }
+        // Add a TickerBehaviour to look for buyers
+        addBehaviour(new TickerBehaviour(this, 5000) {
+            protected void onTick() {
+                getBookBuyers(myAgent);
+                if(buyerAgents.length == 0){
+                    System.out.println("There are no buyers... terminating");
+                    addBehaviour(new shutdown());
+                }
+            }
+
+        } );
+
+    }
+
+    public void registerBookSeller(){
         // Register the book-selling service in the yellow pages
 		DFAgentDescription dfd = new DFAgentDescription();
 		dfd.setName(getAID());
@@ -59,19 +88,28 @@ public class BookSellerAgent extends Agent {
 		catch (FIPAException fe) {
 			fe.printStackTrace();
 		}
-
-        // Add the behaviour serving queries from buyer agents
-		addBehaviour(new OfferRequestsServer());
-
-		// Add the behaviour serving purchase orders from buyer agents
-		addBehaviour(new PurchaseOrdersServer());
-
-        try {
- 			Thread.sleep(3000);
- 		} catch (InterruptedException e) {
- 			//e.printStackTrace();
- 		}
     }
+
+    public void getBookBuyers(Agent myAgent){
+		// Update the list of buyer agents
+		DFAgentDescription template = new DFAgentDescription();
+		ServiceDescription sd = new ServiceDescription();
+		sd.setType("book-buying");
+		template.addServices(sd);
+		try {
+			DFAgentDescription [] result = DFService.search(myAgent, template);
+			//System.out.println("Found the following buying agents:");
+			buyerAgents = new AID [result.length];
+			for (int i = 0; i < result.length; ++i) {
+				buyerAgents[i] = result[i].getName();
+				//System.out.println(buyerAgents[i].getName());
+			}
+		}
+		catch (FIPAException fe) {
+			fe.printStackTrace();
+		}
+
+	}
 
     protected void takeDown() {
         // Deregister from the yellow pages

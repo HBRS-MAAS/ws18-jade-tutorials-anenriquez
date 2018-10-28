@@ -32,46 +32,34 @@ public class BookBuyerAgent extends Agent {
 	// The list of known seller agents
 	private AID [] sellerAgents;
 
-	private int agentID;
-
 	protected void setup() {
 		// Welcome message
-		System.out.println(getAID().getName()+" is ready.");
+		System.out.println(getAID().getLocalName()+" is ready.");
+
 		initializeCatalogueBooks();
 		initializeTargetBooks();
 		acquiredBooks = new Vector<>();
+
 		System.out.println(getAID().getName()+ " will try to buy  "+targetBooks);
 
-		String [] parts = getAID().getLocalName().split("_");
-        agentID = Integer.parseInt(parts[1]);
-        System.out.println("Agent ID: "+ agentID);
+		// Register the book-buying service in the yellow pages
+		registerBookBuyer();
 
 		// Add a TickerBehaviour for each targetBook
 		for (String targetBook : targetBooks) {
 			addBehaviour(new TickerBehaviour(this, 5000) {
 				protected void onTick() {
-					System.out.println(getAID().getName()+"is trying to buy "+targetBook);
-					// Update the list of seller agents
-					DFAgentDescription template = new DFAgentDescription();
-					ServiceDescription sd = new ServiceDescription();
-					sd.setType("book-selling");
-					template.addServices(sd);
-					try {
-						DFAgentDescription [] result = DFService.search(myAgent, template);
-						System.out.println("Found the following seller agents:");
-						sellerAgents = new AID [result.length];
-						for (int i = 0; i < result.length; ++i) {
-							sellerAgents[i] = result[i].getName();
-							System.out.println(sellerAgents[i].getName());
-						}
-					}
-					catch (FIPAException fe) {
-						fe.printStackTrace();
-					}
+					System.out.println(getAID().getLocalName()+"is trying to buy "+targetBook);
+
+					// Update seller agents
+					getBookSellers(myAgent);
 
 					if(acquiredBooks.contains(targetBook)){
-						System.out.println(getAID().getLocalName()+" has bought already bought" + targetBook);
+						System.out.println(getAID().getLocalName()+" has already bought" + targetBook);
 						printAcquiredBooks();
+						// Check the number of books bought so far
+						checkNBoughtBooks();
+						// Stop the TickerBehaviour that is trying to buy targetBook
 						stop();
 					}
 					else{
@@ -82,6 +70,7 @@ public class BookBuyerAgent extends Agent {
 				}
 
 			} );
+
 		}
 
         try {
@@ -89,12 +78,69 @@ public class BookBuyerAgent extends Agent {
  		} catch (InterruptedException e) {
  			//e.printStackTrace();
  		}
+	}
 
-		//addBehaviour(new shutdown());
+	public void checkNBoughtBooks(){
+		if(acquiredBooks.size() == nTargetBooks){
+			System.out.println(getAID().getLocalName()+" has bought " + acquiredBooks.size() + " books");
+			// Stop this agent
+			doDelete();
+		}
+		else{
+			System.out.println(getAID().getLocalName()+" has not bought " + nTargetBooks + " yet");
+		}
+	}
+
+	protected void takeDown() {
+        // Deregister from the yellow pages
+		try {
+			DFService.deregister(this);
+		}
+		catch (FIPAException fe) {
+			fe.printStackTrace();
+		}
+		System.out.println(getAID().getLocalName() + ": Terminating.");
+	}
+
+	public void registerBookBuyer(){
+		// Register the book-buying service in the yellow pages
+		DFAgentDescription dfd = new DFAgentDescription();
+		dfd.setName(getAID());
+		ServiceDescription sd = new ServiceDescription();
+		sd.setType("book-buying");
+		sd.setName("JADE-book-trading");
+		dfd.addServices(sd);
+		try {
+			DFService.register(this, dfd);
+		}
+		catch (FIPAException fe) {
+			fe.printStackTrace();
+		}
+	}
+
+	public void getBookSellers(Agent myAgent){
+		// Update the list of seller agents
+		DFAgentDescription template = new DFAgentDescription();
+		ServiceDescription sd = new ServiceDescription();
+		sd.setType("book-selling");
+		template.addServices(sd);
+		try {
+			DFAgentDescription [] result = DFService.search(myAgent, template);
+			System.out.println("Found the following seller agents:");
+			sellerAgents = new AID [result.length];
+			for (int i = 0; i < result.length; ++i) {
+				sellerAgents[i] = result[i].getName();
+				System.out.println(sellerAgents[i].getName());
+			}
+		}
+		catch (FIPAException fe) {
+			fe.printStackTrace();
+		}
+
 	}
 
 	public void printAcquiredBooks(){
-		System.out.println("Agent"+ getAID().getName()+" bought:");
+		System.out.println("Agent"+ getAID().getLocalName()+" bought:");
 		System.out.println(acquiredBooks);
 	}
 
@@ -197,7 +243,7 @@ public class BookBuyerAgent extends Agent {
 					// Purchase order reply received
 					if (reply.getPerformative() == ACLMessage.INFORM) {
 						// Purchase successful. We can terminate
-						System.out.println("Agent "+getAID().getName()+ " successfully purchased "+ targetBook+ " from agent "+reply.getSender().getName());
+						System.out.println("Agent "+getAID().getLocalName()+ " successfully purchased "+ targetBook+ " from agent "+reply.getSender().getLocalName());
 						System.out.println("Bought at price = "+bestPrice);
 						acquiredBooks.add(targetBook);
 						//myAgent.doDelete();
@@ -219,14 +265,13 @@ public class BookBuyerAgent extends Agent {
 			if (step == 2 && bestSeller == null) {
 				System.out.println("Attempt failed: "+targetBook+" not available for sale");
 			}
+            // if (step == 4 && acquiredBooks.size()>nTargetBooks){
+            //     myAgent.doDelete();
+            //     return false;
+            // }
 			return ((step == 2 && bestSeller == null) || step == 4);
 		}
 	}  // End of inner class RequestPerformer
-
-
-	protected void takeDown() {
-		System.out.println(getAID().getLocalName() + ": Terminating.");
-	}
 
     // Taken from http://www.rickyvanrijn.nl/2017/08/29/how-to-shutdown-jade-agent-platform-programmatically/
 	private class shutdown extends OneShotBehaviour{
