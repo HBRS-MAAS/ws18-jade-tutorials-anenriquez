@@ -1,3 +1,5 @@
+//Code based on the examples.bookTrading package in http://jade.tilab.com/download/jade/
+
 package maas.tutorials;
 
 import jade.content.lang.Codec;
@@ -98,11 +100,9 @@ public class BookSellerAgent extends Agent {
 		template.addServices(sd);
 		try {
 			DFAgentDescription [] result = DFService.search(myAgent, template);
-			//System.out.println("Found the following buying agents:");
 			buyerAgents = new AID [result.length];
 			for (int i = 0; i < result.length; ++i) {
 				buyerAgents[i] = result[i].getName();
-				//System.out.println(buyerAgents[i].getName());
 			}
 		}
 		catch (FIPAException fe) {
@@ -270,8 +270,6 @@ public class BookSellerAgent extends Agent {
 			}
 		}
 	}  // End of inner class OfferRequestsServer
-
-
 
     // Taken from http://www.rickyvanrijn.nl/2017/08/29/how-to-shutdown-jade-agent-platform-programmatically/
 	private class shutdown extends OneShotBehaviour{
